@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<INICONF>
+	<SYSTEM>
+        <Domain> 
+		<ComponentType>1</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities>SCADA1;PC-TOMMY</ContentPossibilities>
+	</Domain>
+        <LocalNodeName> 
+		<ComponentType>1</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities>SCADA1;PC-OLIVIER</ContentPossibilities>
+	</LocalNodeName>
+        <bDisplayCustomerTags>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bDisplayCustomerTags>
+        <bDisplayDocumentation>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bDisplayDocumentation>
+        <bDisplayPLCWebServer>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bDisplayPLCWebServer>
+        <bDisplaySearchTags>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bDisplaySearchTags>
+
+        <bAutoStartGraphics_Sys1>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bAutoStartGraphics_Sys1>
+        <bAutoStartGraphics_Sys2>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bAutoStartGraphics_Sys2>
+        <bAutoStartGraphics_Sys3>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bAutoStartGraphics_Sys3>
+        <bDisplayPeakSimulation>
+		<ComponentType>2</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities></ContentPossibilities>
+	</bDisplayPeakSimulation>
+        <UnitUV> 
+		<ComponentType>1</ComponentType>
+		<Condition></Condition>
+		<ContentPossibilities>AU;OD;%[uv]</ContentPossibilities>
+	</UnitUV>
+	</SYSTEM>
+
+	<Process>
+        	<UnitUV> 
+			<ComponentType>1</ComponentType>
+			<Condition></Condition>
+			<ContentPossibilities>AU;OD;%[uv]</ContentPossibilities>
+		</UnitUV>
+	</Process>
+
+	<Module1>
+        	<TypeModule> 
+			<ComponentType>1</ComponentType>
+			<Condition></Condition>
+			<ContentPossibilities>None;MCC;Batch;MCS Single Use</ContentPossibilities>
+		</TypeModule>
+	</Module1>
+
+</INICONF>
+
+

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using PeanutButter.INI;
+using System.Xml.Linq;
 
 namespace BIOSC_INI_CONFIGURATOR
 {
@@ -8,11 +9,35 @@ namespace BIOSC_INI_CONFIGURATOR
         INIFile IniMng = new INIFile(@"C:\test_ini\Test.ini");
         Dictionary<string, List<string>> dict_GroupeSections = new Dictionary<string, List<string>>();
         Dictionary<string, List<string>> dict_conf = new Dictionary<string, List<string>>();
-
+        clsSystem syst = new clsSystem();
+        XMLManager xmlManager = new XMLManager();
+        string folderPath;
+        string CompType;
+        string Condition;
+        string ContentPossib;
         public Form1()
         {
 
             InitializeComponent();
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Get the path of specified file
+                    folderPath = Path.GetDirectoryName(openFileDialog.FileName);
+                  
+                    label1.Text = "Path folder of ini file and xml file :  " +folderPath;
+
+                }
+            }
+
+            xmlManager.Open(folderPath+ @"\Config.xml");
 
 
             //Rechercher dans config pour construire le dictionnaire
@@ -33,6 +58,8 @@ namespace BIOSC_INI_CONFIGURATOR
             }
 
             //Construction des tab et leurs contenus => solution list et groupe
+
+
             foreach (String k in dict_conf.Keys) //dict_GroupeSections.Keys
             {
                 TabPage tabPageGrp = new TabPage();
@@ -47,6 +74,8 @@ namespace BIOSC_INI_CONFIGURATOR
                 tlpTabCtrlSub.Dock = System.Windows.Forms.DockStyle.Fill;
 
                 //Construction des tab groupe general
+
+
                 foreach (String SectionInList in dict_conf[k]) //dict_GroupeSections[k]
                 {
                     TabPage tabPageSub = new TabPage();
@@ -60,20 +89,77 @@ namespace BIOSC_INI_CONFIGURATOR
                     TableLayoutPanel tableLayoutPanel1 = new TableLayoutPanel();
                     tableLayoutPanel1.AutoSize = true;
                     tableLayoutPanel1.ColumnCount = 2;
-
+                    tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+          
                     //Construction des tab sous groupe issus des sections
                     foreach ((string key, string value) in IniMng.GetSection(SectionInList))
                     {
+
+                        CompType = "";
+                        foreach (XElement nd in xmlManager.Get_MainNode_Nodes(SectionInList))
+                        {
+                            CompType = "";
+                            String FirstNodeName = nd.Name.ToString();
+                            
+
+                            CompType = nd.Element("ComponentType").Value;
+                            Condition = nd.Element("Condition").Value;
+                            ContentPossib = nd.Element("ContentPossibilities").Value;
+                            if (FirstNodeName == key)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                CompType = "";
+                            }
+
+                        }
+
                         Label Keytoadd = new Label();
-                        TextBox Valtoadd = new TextBox();
+                        Keytoadd.Dock = System.Windows.Forms.DockStyle.Fill;
+                        Keytoadd.AutoSize = true;
                         Keytoadd.Name = Keytoadd.Text = key;
-
-                        Valtoadd.Name = SectionInList + ":" + key;
-                        Valtoadd.Text = value;
-                        Valtoadd.Leave += new System.EventHandler(TxtOnLeave);
-
                         tableLayoutPanel1.Controls.Add(Keytoadd, 0, rownum);
-                        tableLayoutPanel1.Controls.Add(Valtoadd, 1, rownum);
+                        tableLayoutPanel1.Padding = new Padding(15,20,15,0);
+
+                        if (CompType == "")//textbox
+                        {
+                            TextBox Valtoadd = new TextBox();
+                            Valtoadd.Dock = System.Windows.Forms.DockStyle.Fill;
+                            Valtoadd.AutoSize = true;
+                            Valtoadd.Name = SectionInList + ":" + key;
+                            Valtoadd.Text = value;
+                            Valtoadd.Leave += new System.EventHandler(TxtOnLeave);
+                            tableLayoutPanel1.Controls.Add(Valtoadd, 1, rownum);
+                        }
+                        if (CompType == "1")//combobox
+                        {
+                            ComboBox Valtoadd = new ComboBox();
+                            Valtoadd.Dock = System.Windows.Forms.DockStyle.Fill;
+                            Valtoadd.AutoSize = true;
+                            Valtoadd.Name = SectionInList + ":" + key;
+                            
+                            foreach (string cnt in ContentPossib.Split(";"))
+                            { 
+                                Valtoadd.Items.Add(cnt); 
+                            }
+                            if(value!="") Valtoadd.Items.Add(value);
+
+                            //Valtoadd.Leave += new System.EventHandler(TxtOnLeave);
+                            tableLayoutPanel1.Controls.Add(Valtoadd, 1, rownum);
+                        }
+                        if (CompType == "2")
+                        {
+                            CheckBox Valtoadd = new CheckBox();
+                            Valtoadd.Dock = System.Windows.Forms.DockStyle.Fill;
+                            Valtoadd.Name = SectionInList + ":" + key;
+                            bool.TryParse( value, out bool g);
+                            Valtoadd.Checked = g;
+                            tableLayoutPanel1.Controls.Add(Valtoadd, 1, rownum);
+                            Valtoadd.CheckedChanged += new System.EventHandler(CheckOnChange);
+                        }
+
 
                         tabPageSub.Controls.Add(tableLayoutPanel1);
 
@@ -89,22 +175,41 @@ namespace BIOSC_INI_CONFIGURATOR
                 tabCtrlGroup.Controls.Add(tabPageGrp);
 
             }
-            //IniMng.SetValue("", "", "");
-            /*foreach (string key in IniManager.AllSections)
-            {
 
-            }*/
 
         }
         public void TxtOnLeave(object sender, EventArgs e)
         {
             TextBox textBox = (TextBox)sender;
-            //textBox.Text = "blaaa";
-
             IniMng.SetValue(textBox.Name.Split(":")[0].ToString(), textBox.Name.Split(":")[1].ToString(), textBox.Text);
             IniMng.Persist();
         }
+        public void CheckOnChange(object sender, EventArgs e)
+        {
+            CheckBox chkbox = (CheckBox)sender;
+            IniMng.SetValue(chkbox.Name.Split(":")[0].ToString(), chkbox.Name.Split(":")[1].ToString(), chkbox.Checked.ToString());
+            IniMng.Persist();
+        }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
 
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    //Get the path of specified file
+                    string filePath = openFileDialog.FileName;
+                    label1.Text = filePath;
+                    //Read the contents of the file into a stream
+                    var fileStream = openFileDialog.OpenFile();
+
+                }
+            }
+        }
     }
 }
